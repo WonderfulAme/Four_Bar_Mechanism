@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 from tkinter import ttk
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -68,18 +69,14 @@ class FourBarLinkage:
             if max(self.L0, self.L1, self.L2, self.L3) in [self.L0, self.L1]:
                 phi = cosine_law_for_angle(self.L1, self.L0, self.L2 + self.L3)
                 if 0 < phi:
-                    print("1")
                     return (-phi, phi)
                 else:
-                    print("2")
                     return (-phi + 2*np.pi, phi + 2*np.pi)
             else:
                 phi = cosine_law_for_angle(self.L1, self.L0, abs(self.L2 - self.L3))
                 if 0 > phi:
-                    print("3")
                     return (phi - 2*np.pi, -phi)
                 else:
-                    print("4")
                     return (phi, -phi + 2*np.pi)
         elif self.Grashof() == "Grashof":
             if config == 1:
@@ -119,7 +116,6 @@ class FourBarLinkage:
 
         try:
             self.theta_1_valid = self.valid_theta_1(config=self.config)
-            print(self.theta_1_valid) 
             if not isinstance(self.theta_1_valid, tuple) or len(self.theta_1_valid) != 2:
                 raise ValueError("Invalid theta_1 range")
 
@@ -328,7 +324,7 @@ class FourBarLinkage:
         # Angular positions vs time
         axs[1, 0].plot(self.time, self.theta_1_list, 'r-', label='θ₁')
         axs[1, 0].plot(self.time, self.theta_2_list, 'g-', label='θ₂')
-        axs[1, 0].set_title('Angular Positions vs Time')
+        axs[1, 0].set_title(f'Angular Positions vs Time [{np.degrees(self.theta_1_valid[0]):.2f}° to {np.degrees(self.theta_1_valid[1]):.2f}°]')
         axs[1, 0].set_xlabel('Time (s)')
         axs[1, 0].set_ylabel('Angle (rad)')
         axs[1, 0].grid(True)
@@ -449,8 +445,12 @@ class FourBarLinkageSimulator:
     def create_controls(self):
         # Title
         title_label = tk.Label(self.control_frame, text="Four-Bar Linkage", font=("Arial", 12, "bold"))
-        title_label.grid(row=0, column=0, columnspan=2, pady=10)
-        
+        title_label.grid(row=0, column=0, pady=10, sticky="w")
+
+        # Info Button
+        info_btn = tk.Button(self.control_frame, text="ℹ️ License", command= show_license_info)
+        info_btn.grid(row=0, column=1, pady=10, sticky="e")
+
         # Link length controls
         tk.Label(self.control_frame, text="Ground Link (L₀):").grid(row=1, column=0, sticky=tk.W, pady=3)
         self.L0_slider = tk.Scale(self.control_frame, from_=10, to=100, orient=tk.HORIZONTAL, length=200,
@@ -768,6 +768,30 @@ def show_simulation():
     root.title("Four-Bar Linkage Simulation with Position and Velocity Analysis")
     simulator = FourBarLinkageSimulator(root)
     root.mainloop()
+
+def show_license_info():
+    license_text = (
+        "MIT License\n\n"
+        "Copyright (c) 2025 Amelia Hoyos\n\n"
+        "Permission is hereby granted, free of charge, to any person obtaining a copy "
+        "of this software and associated documentation files (the \"Software\"), to deal "
+        "in the Software without restriction, including without limitation the rights "
+        "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell "
+        "copies of the Software, and to permit persons to whom the Software is "
+        "furnished to do so, subject to the following conditions:\n\n"
+        "The above copyright notice and this permission notice shall be included in "
+        "all copies or substantial portions of the Software.\n\n"
+        "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR "
+        "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, "
+        "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE "
+        "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER "
+        "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, "
+        "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN "
+        "THE SOFTWARE.\n\n"
+        "Author: Amelia Hoyos"
+    )
+    messagebox.showinfo("License and Author", license_text)
+
 
 if __name__ == "__main__":
     show_simulation()
